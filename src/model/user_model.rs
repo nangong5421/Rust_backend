@@ -2,6 +2,12 @@ use serde::{Deserialize, Serialize};
 
 
 #[derive(Debug, Deserialize)]
+pub struct SelectUserRequest {
+    pub account: Option<String>,
+    pub password: Option<String>,
+}
+
+#[derive(Debug, Deserialize)]
 pub struct CreateUserRequest {
     pub name: String,
     pub account: String,
@@ -16,8 +22,8 @@ pub struct UpdateUserRequest {
     pub description: Option<String>,
     pub account: String,
     // TODO...
-    // pub old_password: Option<String>,
-    // pub new_password: Option<String>,
+    pub old_password: String,
+    pub new_password: Option<String>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -34,6 +40,8 @@ pub struct UserResponse {
     pub phone: String,
     pub description: String,
     pub account: String,
+    pub role_id: i32,
+    pub ship_id: i32,
     pub created_at: String,
     pub updated_at: String,
 }

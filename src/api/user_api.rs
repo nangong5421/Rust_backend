@@ -1,7 +1,7 @@
 use axum::{Router, routing::{post, get}, Json};
 use sea_orm::DatabaseConnection;
-use crate::service::user_service;
-use crate::model::user_model::{CreateUserRequest, UpdateUserRequest, DeleteUserRequest, UserResponse};
+use crate::service::user_service::UserService;
+use crate::model::user_model::*;
 
 pub fn routes(db: DatabaseConnection) -> Router {
     Router::new()
@@ -13,21 +13,21 @@ pub fn routes(db: DatabaseConnection) -> Router {
 }
 
 #[axum::debug_handler]
-async fn select_user(db: axum::extract::State<DatabaseConnection>) -> Result<Json<Vec<UserResponse>>, axum::http::StatusCode> {
-    user_service::select_user(&db).await.map(Json).map_err(|_| axum::http::StatusCode::INTERNAL_SERVER_ERROR)
+async fn select_user(db: axum::extract::State<DatabaseConnection>, Json(payload): Json<SelectUserRequest>) -> Result<Json<Vec<UserResponse>>, axum::http::StatusCode> {
+    UserService::select_user(&db, payload).await.map(Json).map_err(|_| axum::http::StatusCode::INTERNAL_SERVER_ERROR)
 }
 
 #[axum::debug_handler]
-async fn create_user(db: axum::extract::State<DatabaseConnection>, Json(payload): Json<CreateUserRequest>) -> Result<Json<UserResponse>, axum::http::StatusCode> {
-    user_service::create_user(&db, payload).await.map(Json).map_err(|_| axum::http::StatusCode::INTERNAL_SERVER_ERROR)
+async fn create_user(db: axum::extract::State<DatabaseConnection>, Json(payload): Json<CreateUserRequest>) -> Result<(), axum::http::StatusCode> {
+    UserService::create_user(&db, payload).await.map_err(|_| axum::http::StatusCode::INTERNAL_SERVER_ERROR)
 }
 
 #[axum::debug_handler]
-async fn update_user(db: axum::extract::State<DatabaseConnection>, Json(payload): Json<UpdateUserRequest>) -> Result<Json<UserResponse>, axum::http::StatusCode> {
-    user_service::update_user(&db, payload).await.map(Json).map_err(|_| axum::http::StatusCode::INTERNAL_SERVER_ERROR)
+async fn update_user(db: axum::extract::State<DatabaseConnection>, Json(payload): Json<UpdateUserRequest>) -> Result<(), axum::http::StatusCode> {
+    UserService::update_user(&db, payload).await.map_err(|_| axum::http::StatusCode::INTERNAL_SERVER_ERROR)
 }
 
 #[axum::debug_handler]
-async fn delete_user(db: axum::extract::State<DatabaseConnection>, Json(payload): Json<DeleteUserRequest>) -> Result<Json<UserResponse>, axum::http::StatusCode> {
-    user_service::delete_user(&db, payload).await.map(Json).map_err(|_| axum::http::StatusCode::INTERNAL_SERVER_ERROR)
+async fn delete_user(db: axum::extract::State<DatabaseConnection>, Json(payload): Json<DeleteUserRequest>) -> Result<(), axum::http::StatusCode> {
+    UserService::delete_user(&db, payload).await.map_err(|_| axum::http::StatusCode::INTERNAL_SERVER_ERROR)
 }
