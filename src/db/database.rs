@@ -3,19 +3,15 @@ use dotenvy::dotenv;
 use std::env;
 
 
-pub async fn init_db () -> DatabaseConnection {
-    dotenv().ok();
-    let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
-    Database::connect(database_url).await.expect("Database connection failed")
-}
-
 pub struct TestDatabase {
     pub db: DatabaseConnection,
 }
 
 impl TestDatabase {
-    pub async fn new (db: DatabaseConnection, rebuild: bool) -> Result<Self, sea_orm::DbErr> {
-        
+    pub async fn new (rebuild: bool) -> Result<Self, sea_orm::DbErr> {
+        dotenv().ok();
+        let database_url: String = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
+        let db: DatabaseConnection = Database::connect(database_url).await.expect("Database connection failed");
         if rebuild {
             Self::drop_table(&db).await.expect("Drop table failed");
         }

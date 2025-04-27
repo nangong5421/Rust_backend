@@ -10,9 +10,8 @@ use db::database::TestDatabase; // <<== 加這行
 
 #[tokio::main]
 async fn main() {
-    // 1. 初始化並建立 TestDatabase
-    let db_conn = db::database::init_db().await;
-    let test_db = TestDatabase::new(db_conn, true).await.expect("Initialize test database failed"); 
+    
+    let test_db = TestDatabase::new(true).await.expect("Initialize test database failed"); 
     // rebuild 參數 true/false 看你要不要重新建立表格
 
     // 2. 使用 test_db.db 作為 DatabaseConnection
