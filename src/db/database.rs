@@ -1,4 +1,4 @@
-use sea_orm::{ ConnectionTrait, Database, DatabaseConnection, Statement };
+use sea_orm::{ ConnectionTrait, Database, DatabaseConnection, Statement, DbErr };
 use dotenvy::dotenv;
 use std::env;
 
@@ -8,7 +8,7 @@ pub struct TestDatabase {
 }
 
 impl TestDatabase {
-    pub async fn new (rebuild: bool) -> Result<Self, sea_orm::DbErr> {
+    pub async fn new (rebuild: bool) -> Result<Self, DbErr> {
         dotenv().ok();
         let database_url: String = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
         let db: DatabaseConnection = Database::connect(database_url).await.expect("Database connection failed");
@@ -19,14 +19,14 @@ impl TestDatabase {
         Ok(Self { db })
     }
 
-    async fn create_table(db: &DatabaseConnection) -> Result<(), sea_orm::DbErr> {
+    async fn create_table(db: &DatabaseConnection) -> Result<(), DbErr> {
         Self::create_ships_table(db).await?;
         Self::create_roles_table(db).await?;
         Self::create_users_table(db).await?;
         Ok(())
     }
 
-    async fn drop_table(db: &DatabaseConnection) -> Result<(), sea_orm::DbErr> {
+    async fn drop_table(db: &DatabaseConnection) -> Result<(), DbErr> {
         db.execute(Self::sql(db, "DROP TABLE IF EXISTS users;")).await?;
         db.execute(Self::sql(db, "DROP TABLE IF EXISTS roles;")).await?;
         db.execute(Self::sql(db, "DROP TABLE IF EXISTS ships;")).await?;
@@ -37,7 +37,7 @@ impl TestDatabase {
         Statement::from_string(db.get_database_backend(), sql.into())
     }
 
-    async fn create_users_table (db: &DatabaseConnection) -> Result<(), sea_orm::DbErr> {
+    async fn create_users_table (db: &DatabaseConnection) -> Result<(), DbErr> {
         db.execute(Self::sql(db, r#"
             CREATE TABLE IF NOT EXISTS users (
                 id INT AUTO_INCREMENT PRIMARY KEY,
@@ -75,7 +75,7 @@ impl TestDatabase {
         Ok(())
     }
 
-    async fn create_roles_table (db: &DatabaseConnection) -> Result<(), sea_orm::DbErr> {
+    async fn create_roles_table (db: &DatabaseConnection) -> Result<(), DbErr> {
         db.execute(Self::sql(db, r#"
             CREATE TABLE IF NOT EXISTS roles (
                 id INT AUTO_INCREMENT PRIMARY KEY,
@@ -94,7 +94,7 @@ impl TestDatabase {
         Ok(())
     }
 
-    async fn create_ships_table (db: &DatabaseConnection) -> Result<(), sea_orm::DbErr> {
+    async fn create_ships_table (db: &DatabaseConnection) -> Result<(), DbErr> {
         db.execute(Self::sql(db, r#"
             CREATE TABLE IF NOT EXISTS ships (
                 id INT AUTO_INCREMENT PRIMARY KEY,
